@@ -1,13 +1,11 @@
 from ckan.plugins import toolkit as pt
-
+from ckanext.harvest.logic.auth import user_is_sysadmin
 
 def harvest_source_delete(context, data_dict):
     '''
         Authorization check for harvest source deletion
 
-        It forwards the checks to package_delete, which will check for
-        organization membership, whether if sysadmin, etc according to the
-        instance configuration.
+        Only sysadmins can do it
     '''
     model = context.get('model')
     user = context.get('user')
@@ -19,9 +17,9 @@ def harvest_source_delete(context, data_dict):
 
     context['package'] = pkg
 
-    try:
-        pt.check_access('package_delete', context, data_dict)
-        return {'success': True}
-    except pt.NotAuthorized:
+    if not user_is_sysadmin(context):
         return {'success': False,
-                'msg': pt._('User {0} not authorized to delete harvest source {1}').format(user, source_id)}
+                'msg': pt._('User {0} not authorized to update harvest source {1}').format(user, source_id)}
+
+    else:
+        return {'success': True}

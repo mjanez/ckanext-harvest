@@ -1,13 +1,18 @@
-=============================================
-ckanext-harvest - Remote harvesting extension
-=============================================
+=============================================================================
+mjanez/ckanext-harvest - Enhanced Privacy and Security for Remote Harvesting
+=============================================================================
 
-.. image:: https://github.com/ckan/ckanext-harvest/workflows/Tests/badge.svg?branch=master
-    :target: https://github.com/ckan/ckanext-harvest/actions
+.. image:: https://github.com/mjanez/ckanext-harvest/workflows/Tests/badge.svg?branch=master
+    :target: https://github.com/mjanez/ckanext-harvest/actions
 
-This extension provides a common harvesting framework for ckan extensions
-and adds a CLI and a WUI to CKAN to manage harvesting sources and jobs.
+This version of `ckanext-harvest` includes several enhancements focused on improving privacy and security:
 
+1. **Private Version**: This version is designed to be more private, ensuring that sensitive information such as tokens and credentials are not exposed.
+2. **Removal of Sensitive Data**: The extension includes functionality to automatically remove private keys from dictionaries, including nested dictionaries. This ensures that sensitive information is not included in the output of API responses or logs.
+3. **Restricted Access**: Creation, editing, and deletion of harvesting sources and jobs are restricted to system administrators (`sysadmins`) only. This prevents unauthorized users from making changes to the harvesting configuration.
+4. **Enhanced Logging**: The extension includes enhanced logging to provide better visibility into the operations being performed, while ensuring that sensitive information is not logged.
+
+These improvements make `ckanext-harvest` more suitable for environments where privacy and security are paramount.
 
 Installation
 ============

@@ -6,17 +6,15 @@ def harvest_source_create(context, data_dict):
     '''
         Authorization check for harvest source creation
 
-        It forwards the checks to package_create, which will check for
-        organization membership, whether if sysadmin, etc according to the
-        instance configuration.
+        Only sysadmins can do it
     '''
     user = context.get('user')
-    try:
-        pt.check_access('package_create', context, data_dict)
-        return {'success': True}
-    except pt.NotAuthorized:
+
+    if not user_is_sysadmin(context):
         return {'success': False,
                 'msg': pt._('User {0} not authorized to create harvest sources').format(user)}
+    else:
+        return {'success': True}
 
 
 def harvest_job_create(context, data_dict):

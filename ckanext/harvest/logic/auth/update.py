@@ -6,9 +6,7 @@ def harvest_source_update(context, data_dict):
     '''
         Authorization check for harvest source update
 
-        It forwards the checks to package_update, which will check for
-        organization membership, whether if sysadmin, etc according to the
-        instance configuration.
+        Only sysadmins can do it
     '''
     model = context.get('model')
     user = context.get('user')
@@ -20,13 +18,12 @@ def harvest_source_update(context, data_dict):
 
     context['package'] = pkg
 
-    try:
-        pt.check_access('package_update', context, data_dict)
-        return {'success': True}
-    except pt.NotAuthorized:
+    if not user_is_sysadmin(context):
         return {'success': False,
                 'msg': pt._('User {0} not authorized to update harvest source {1}').format(user, source_id)}
 
+    else:
+        return {'success': True}
 
 def harvest_sources_clear(context, data_dict):
     '''
