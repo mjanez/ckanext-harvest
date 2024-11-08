@@ -2,8 +2,8 @@
 mjanez/ckanext-harvest - Enhanced Privacy and Security for Remote Harvesting
 =============================================================================
 
-.. image:: https://github.com/mjanez/ckanext-harvest/workflows/Tests/badge.svg?branch=master
-    :target: https://github.com/mjanez/ckanext-harvest/actions
+.. image:: https://github.com/ckan/ckanext-harvest/workflows/Tests/badge.svg?branch=master
+    :target: https://github.com/ckan/ckanext-harvest/actions
 
 This version of `ckanext-harvest` includes several enhancements focused on improving privacy and security:
 
