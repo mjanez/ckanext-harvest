@@ -1,10 +1,48 @@
 from sqlalchemy import func, text
+import logging
+import json
 
 from ckan.model import Group
 from ckan import logic
 from ckanext.harvest.model import (HarvestJob, HarvestObject,
                                    HarvestGatherError, HarvestObjectError)
 
+log = logging.getLogger(__name__)
+
+PRIVATE_KEYS = ['api_key', 'credentials', 'password', 'secret', 'token']
+
+def remove_private_keys(data):
+    """
+    Removes private keys from a dictionary, including nested dictionaries.
+
+    Args:
+        data (dict): The dictionary from which private keys will be removed.
+
+    Returns:
+        dict: The dictionary without private keys.
+    """
+    if isinstance(data, dict):
+        # Create a new dictionary to avoid modifying the original data
+        new_data = {}
+        for key, value in data.items():
+            if key in PRIVATE_KEYS:
+                continue
+            elif key == 'config' and isinstance(value, str):
+                try:
+                    config_dict = json.loads(value)
+                    # Recursively remove private keys from the config dict
+                    new_config = remove_private_keys(config_dict)
+                    new_data[key] = json.dumps(new_config)
+                except ValueError:
+                    new_data[key] = value
+            else:
+                new_data[key] = remove_private_keys(value)
+        return new_data
+    elif isinstance(data, list):
+        # Recursively process list items
+        return [remove_private_keys(item) for item in data]
+    else:
+        return data
 
 def harvest_source_dictize(source, context, last_job_status=False):
     out = source.as_dict()
@@ -22,6 +60,9 @@ def harvest_source_dictize(source, context, last_job_status=False):
     if last_job_status:
         source_status = logic.get_action('harvest_source_show_status')(context, {'id': source.id})
         out['last_job_status'] = source_status.get('last_job', {})
+
+    # Remove private keys
+    out = remove_private_keys(out)
 
     return out
 
@@ -78,8 +119,10 @@ def harvest_job_dictize(job, context):
             .limit(context.get('error_summmary_limit', 20))
         out['gather_error_summary'] = harvest_error_dictize(q.all(), context)
 
-    return out
+    # Remove private keys
+    out = remove_private_keys(out)
 
+    return out
 
 def harvest_object_dictize(obj, context):
     out = obj.as_dict()
@@ -97,8 +140,10 @@ def harvest_object_dictize(obj, context):
     for extra in obj.extras:
         out['extras'][extra.key] = extra.value
 
-    return out
+    # Remove private keys
+    out = remove_private_keys(out)
 
+    return out
 
 def harvest_log_dictize(obj, context):
     out = obj.as_dict()
@@ -106,13 +151,11 @@ def harvest_log_dictize(obj, context):
 
     return out
 
-
 def harvest_error_dictize(obj, context):
     out = []
     for elem in obj:
         out.append(elem._asdict())
     return out
-
 
 def _get_source_status(source, context):
     '''
